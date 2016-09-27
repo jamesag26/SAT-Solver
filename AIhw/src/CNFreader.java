@@ -55,11 +55,6 @@ public class CNFreader {
 	}
 	
 	public static void main(String[] args) throws IOException{
-		//If no file name was provided
-		//if (args.length != 1) {
-		//	System.out.print("There was no file name provided!");
-		//	return;
-		//}
 		//String fileFolder = "/Users/jasonsands/Desktop/satProgram/SATinstances/easy/";
 		String fileFolder = "../SATinstances/easy/";
 		fileFolder += "1.cnf";
