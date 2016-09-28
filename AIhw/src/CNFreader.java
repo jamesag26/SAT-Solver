@@ -62,6 +62,10 @@ public class CNFreader {
 		readLines(read1);
 		System.out.println(read1.clauseList);
 		System.out.println(read1.lit);
+		
+		DPLL dpll = new DPLL(read1.lit);
+		System.out.println(dpll.dpllSolver(read1.clauseList));
+		System.out.println(dpll.solution);
 	}
 
 }
