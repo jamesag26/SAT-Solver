@@ -7,14 +7,11 @@ public class CNFreader {
 
 	// CNF file path
 	private String filePath;
-	// Number of literals
-	private int lit;
 	// List of clauses
 	private ArrayList<Vector<Integer>> clauseList = new ArrayList<Vector<Integer>>();
 	
 	public CNFreader(String path) {
 		filePath = path;
-		lit = 0;
 	}
 	
 	public static void readLines(CNFreader cnf) throws IOException{
@@ -28,13 +25,9 @@ public class CNFreader {
 			// Will hold the clause for the given line
 			Vector<Integer> tempClause = new Vector<Integer>(3);
 			// Print the content on the console
-			System.out.println (strLine);
+			//System.out.println (strLine);
 			// Splits the string to separate the literals in each clause
 			String[] temp = strLine.split("\\s+");
-			// Find number of literals from problem definition line
-			if (temp[0].equals("p")) {
-				cnf.lit = Integer.parseInt(temp[2]);
-			}
 			// Only puts literals into vector if line is not a comment line or initial line
 			if (!temp[0].equals("c") && !temp[0].equals("p")) {
 				// Places literals into vector clause with negative numbers representing !literal 
@@ -57,15 +50,15 @@ public class CNFreader {
 	public static void main(String[] args) throws IOException{
 		//String fileFolder = "/Users/jasonsands/Desktop/satProgram/SATinstances/easy/";
 		String fileFolder = "../SATinstances/easy/";
-		fileFolder += "1.cnf";
+		fileFolder += "3.cnf";
 		CNFreader read1 = new CNFreader(fileFolder);
 		readLines(read1);
-		System.out.println(read1.clauseList);
-		System.out.println(read1.lit);
+		//System.out.println(read1.clauseList);
+		//System.out.println(read1.lit);
 		
-		DPLL dpll = new DPLL(read1.lit);
+		DPLL dpll = new DPLL();
 		System.out.println(dpll.dpllSolver(read1.clauseList));
-		System.out.println(dpll.solution);
+		//System.out.println(dpll.solution);
 	}
 
 }

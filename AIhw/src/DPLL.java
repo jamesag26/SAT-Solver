@@ -1,20 +1,16 @@
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DPLL {
-	Vector<Integer> solution;
-	
-	// Sets solution vector size to number of literals
-	public DPLL(int lit) {
-		solution = new Vector<Integer>(lit);
-		for(int i = 0; i < lit; i++){
-			solution.add(0);
-		}
+	// DPLL Constructor
+	public DPLL() { 
 	}
 	
 	// Checks satisfiability, returns true if clauses are satisfiable
 	boolean dpllSolver(ArrayList<Vector<Integer>> clauseList){
-		boolean sat = false;
+		System.out.println("The beginning clause list is ");
+		System.out.println(clauseList);
 		boolean unitClause = false;
 		
 		// Checks if clauses have been found as satisfiable or unsatisfiable
@@ -41,20 +37,11 @@ public class DPLL {
 			// If all unit clauses found check for consistent literals
 			if (consistentLiterals(clauseList)) {
 				// Solution has been found return
-				sat = true;
 				return true;
-			}
-			else {
-				sat = false;
 			}
 		}
 		
 		// For every unit clause do unitPropogate
-		//for (int i = 0; i < clauseList.size(); i++) {
-		//	if (clauseList.get(i).size() == 1){
-		//		
-		//	}
-		//}
 		int clauseCount = 0;
 		do {
 			// if unitPropogate has been called then reset clauseCount since the removal of literals may have created new unit clauses
@@ -66,7 +53,53 @@ public class DPLL {
 			}
 		} while(clauseCount < clauseList.size());
 		
-		return false;
+		// For every pure literal do pureLiteralAssign
+		
+		// Contains lists of literals to compare and find pure literals
+		Vector<Integer> tempLits = new Vector<Integer>();
+		Vector<Integer> pureLits = new Vector<Integer>();
+		
+		for (int i = 0; i < clauseList.size(); i++){
+			for (int j = 0; j < clauseList.get(i).size(); j++) {
+				// If literal is not in tempLits then add it to the list
+				if (!tempLits.contains(clauseList.get(i).get(j))) {
+					tempLits.add(clauseList.get(i).get(j));
+					// If opposite of literal is not in pure literals then add to pure literals if so then remove from pure literals
+					if (pureLits.contains(-1 * clauseList.get(i).get(j))) {
+						// Finds index of opposite of lit in clause and removes it from puteLits
+						int index = pureLits.indexOf(clauseList.get(i).get(j) * -1);
+						pureLits.remove(index);
+					} else {
+						pureLits.add(clauseList.get(i).get(j));
+					}
+				}
+			}
+		}
+		
+		// Performs pureLiteralAssign for each pure literal
+		for (int i = 0; i < pureLits.size(); i++) {
+			clauseList = pureLiteralAssign(clauseList,pureLits.get(i));
+		}
+		
+		// Chooses a random number from the list of literals
+		// Temporary clauses to hold the unit clause for the literal and the opposite of the literal
+		Vector<Integer> randUnitClause1 = new Vector<Integer>(1);
+		Vector<Integer> randUnitClause2 = new Vector<Integer>(1);
+		System.out.println("Number of literals is " + tempLits.size());
+		System.out.println("The changed clause list is ");
+		System.out.println(clauseList);
+
+		int randLit = ThreadLocalRandom.current().nextInt(0, tempLits.size());
+		randUnitClause1.add(tempLits.get(randLit));
+		randUnitClause2.add(-1 * tempLits.get(randLit));
+		System.out.println("Chosen literal is " + randUnitClause1);
+		
+		// A temporary clause list to hold the opposite value for the randomly chosen literal
+		ArrayList<Vector<Integer>> clauseList2 = new ArrayList<Vector<Integer>>();
+		clauseList2.addAll(clauseList);
+		clauseList.add(0,randUnitClause1);
+		clauseList2.add(0,randUnitClause2);
+		return (dpllSolver(clauseList) || dpllSolver(clauseList2));
 	}
 	
 	// Checks for consistent literals with assumption each clause contains one literal
@@ -102,29 +135,33 @@ public class DPLL {
 		if (lit == 0) {
 			System.out.println("Error literal value is 0");
 		}
-		// Error check
-		if (solution.get(Math.abs(lit) -1) != 0) {
-			System.out.println("Error literal value has already been set");
-		}
-		
-		// Sets literal in solution to be true or false depending on value of literal
-		if (lit > 0) {
-			solution.set(Math.abs(lit) - 1, 1);
-		} else {
-			solution.set(Math.abs(lit - 1), -1);
-		}
-		
+
 		for (int i = 0; i < clauses.size(); i++){
-			// Checks if clause contains literal lit
-			if (clauses.get(i).contains(lit)) {
-				// Removes clause if it contains literal lit since the clause is now true
-				clauses.remove(i);
-			}
+			
 			// Checks if clause has opposite of literal lit
 			if (clauses.get(i).contains(lit * -1)) {
 				// Finds index of opposite of lit in clause and removes it from clause
 				int index = clauses.get(i).indexOf(lit * -1);
 				clauses.get(i).remove(index);
+			}
+			
+			// Checks if clause contains literal lit
+			if (clauses.get(i).contains(lit)) {
+				// Removes clause if it contains literal lit since the clause is now true
+				clauses.remove(i);
+			}
+		}
+		
+		return clauses;
+	}
+	
+	ArrayList<Vector<Integer>> pureLiteralAssign(ArrayList<Vector<Integer>> clauses, int lit) {
+		// Searches through all causes for pure literal
+		for (int i = 0; i < clauses.size(); i++){
+			// Checks if clause contains literal lit
+			if (clauses.get(i).contains(lit)) {
+				// Removes clause if it contains literal lit since the clause is now true
+				clauses.remove(i);
 			}
 		}
 		
